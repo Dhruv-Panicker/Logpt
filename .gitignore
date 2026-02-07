@@ -41,6 +41,7 @@ logs/*
 # Notebooks
 .ipynb_checkpoints/
 *.ipynb
+!dev/*.ipynb
 
 # IDE
 .vscode/
