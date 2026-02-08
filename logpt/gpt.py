@@ -109,8 +109,35 @@ class GPT(nn.Module):
 
         #final projection layer output layer 
         self.lm_head = nn.Linear(config.n_embd, config.vocab_size, bias=False)
+    
+    # Resize token embeddings to add special tokens to the vocabulary and output projection lm_head, wpe don't change
+    def resize_token_embeddings(self, new_voacb_size): 
+        old_vocab_size = self.config.vocab_size
+        self.config.vocab_size = new_voacb_size
 
-    def forward(self, idx):
+        # Resize token embedding: [old_vocab, n_embd] -> [new_vocab, n_embd]
+        old_wte = self.transformer.wte
+        new_wte = nn.Embedding(new_voacb_size, self.config.n_embd)
+        #copy pretrained weights
+        new_wte.weight.data[:old_vocab_size] = old_wte.weight.data
+        #initialize new token embeddings
+        new_wte.weight.data[old_vocab_size:] = torch.randn(
+            new_voacb_size - old_vocab_size, self.config.n_embd) * 0.02
+        self.transformer.wte = new_wte
+
+        #resize out projection layer: [n_embd, old_vocab] -> [n_embd, new_vocab]
+        old_lm_head = self.lm_head
+        new_lm_head = nn.Linear(self.config.n_embd, new_voacb_size, bias=False)
+        #copy pretrained weights
+        new_lm_head.weight.data[:old_vocab_size] = old_lm_head.weight.data
+        new_lm_head.weight.data[old_vocab_size:] = torch.randn(
+            new_voacb_size - old_vocab_size, self.config.n_embd) * 0.02
+        
+        self.lm_head = new_lm_head
+        #update config 
+        self.config.vocab_size = new_voacb_size
+
+    def forward(self, idx, targets=None):
         B, T = idx.size() # batch size, sequence length
         assert T <= self.config.block_size, "Cannot forward, the seequence length cannot exceed the block size"
 
@@ -128,7 +155,10 @@ class GPT(nn.Module):
         # forward through final layer norm
         x = self.transformer.ln_f(x) # shape (B, T, C or n_embd)
         logits = self.lm_head(x) # shape (B, T, vocab_size) get the logits (probabilities for each token in the vocabulary)
-        return logits 
+        loss = None 
+        if targets is not None:
+            loss = F.cross_entropy(logits.view(-1, logits.size(-1)), targets.view(-1), ignore_index=-1) # compute the loss
+        return logits, loss
     
     
     """Loads pretrained GPT-2 model weights from huggingface"""

@@ -18,7 +18,8 @@ class Tokenizer:
     }
 
     def __init__(self): 
-        self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+        # Load from local cache (no network timeout issues)
+        self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2', local_files_only=True)
         self.register_special_tokens()
 
     # Register special tokens with the tokenizer
@@ -29,7 +30,7 @@ class Tokenizer:
     
     #encoding function return as pytorch tensors 
     def encode(self, text: str):
-        return self.tokenizer.encode(text, return_tensors='pt')
+        return self.tokenizer.encode(text)
     
     #decoding function to convert token ids back to text
     def decode(self, token_ids):

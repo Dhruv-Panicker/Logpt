@@ -89,12 +89,12 @@ class Dataloader:
     #Function to get the next batch 
     def next_batch(self): 
         B, T = self.B, self.T
-        end_pos = self.current_position + B * T
+        end_pos = self.current_position + B * T + 1 # +1 for target shift
 
         #If end exceeds wrap around and start new epoch
         if end_pos > len(self.tokens):
             self.reset()
-            end_pos = self.current_position + B * T
+            end_pos = self.current_position + B * T + 1
         
         buffer = self.tokens[self.current_position:end_pos]
         x = buffer[:-1].view(B, T) # input tokens
