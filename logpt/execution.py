@@ -15,8 +15,8 @@ from logpt.dataloader import Dataloader
 from logpt.gpt import GPT, GPTConfig
 
 #Batch configurations 
-B = 4 #micro batch size for MPS
-T = 512#1024 #sequence length for GPT-2
+B = 2 #micro batch size for MPS
+T = 1024 #sequence length for GPT-2
 total_batch_size = 16 #32 # desired batch size
 assert total_batch_size % B == 0, "Total batch size must be divisible by micro batch size B"
 # using gradient accumulation to achieve effective batch size of 32 while only processing 4 samples at a time on MPS/CPU
@@ -24,7 +24,7 @@ grad_accum_steps = total_batch_size // B
 
 
 #Learning rate configurations 
-max_lr = 6e-4
+max_lr = 2e-5
 min_lr = max_lr * 0.1
 warmup_steps = 100
 
@@ -33,11 +33,15 @@ max_steps = 2000
 #Data configuration 
 data_path = "data/training/training_data.jsonl"
 train_ratio = 0.85
-val_ratio = 0.15
+val_ratio = 0.10
 seed = 42
 
 #Weight decay 
 weight_decay = 0.1
+
+#Early stopping 
+eval_interval = 50  # evaluate every N steps
+patience = 10        # stop after N evals with no improvement
 
 #Function that will implement cosine learing rate with linear warmup and then cosine decay after that
 def get_lr(step): 
@@ -133,22 +137,23 @@ def main():
     #write batch size 
     with open(log_path, 'w') as f: 
         f.write("step,train_loss,val_loss,lr\n")
-        f.write(f"0,0,0,{max_lr}\n")
+        f.write(f"Max LR: {max_lr}, Min LR: {min_lr}\n")
         f.write(f"Effective batch size: {total_batch_size}\n")
         f.write(f"Grad accumulation steps: {grad_accum_steps}\n")
-        f.write(f"Max LR: {max_lr}, Min LR: {min_lr}\n")
         f.write(f"Warmup steps: {warmup_steps}, Max steps: {max_steps}\n")
+        f.write(f"# Weight decay: {weight_decay}\n")
     
     #training loop
-    print(f"Starting training for {max_steps} steps...")
+    print(f"Starting training for {max_steps} steps (early stopping patience={patience})...")
     best_val_loss = float('inf')
+    patience_counter = 0
 
     for step in range(max_steps):
         t0 = time.time()
         last_step = (step == max_steps - 1)
 
-        #once in a while, evaluate the model on val set
-        if (step > 0 and step % 250 == 0) or last_step: 
+        #evaluate the model on val set every eval_interval steps
+        if (step > 0 and step % eval_interval == 0) or last_step: 
             model.eval()
             val_loader.reset()
             with torch.no_grad():
@@ -167,17 +172,26 @@ def main():
             with open(log_path, 'a') as f: 
                 f.write(f"{step},, {val_loss_accum:.4f}, {get_lr(step):.6e}\n")
             
-            #Save the best model 
+            #Save the best model and check early stopping
             if val_loss_accum < best_val_loss:
                 best_val_loss = val_loss_accum
+                patience_counter = 0  
                 checkpoint = {
                     'model': model.state_dict(),
                     'config': model.config,
                     'step': step,
                     'val_loss': best_val_loss
                 }
-                torch.save(checkpoint, os.path.join(log_dir, f"best_model_step_{step}.pth"))
+                torch.save(checkpoint, os.path.join(log_dir, "best_model.pth"))
                 print(f"New best model saved with val loss {best_val_loss:.4f} at step {step}")
+            else:
+                patience_counter += 1
+                print(f"No improvement for {patience_counter}/{patience} evals (best: {best_val_loss:.4f})")
+                if patience_counter >= patience:
+                    print(f"Early stopping triggered at step {step}! No improvement for {patience} evals.")
+                    with open(log_path, 'a') as f:
+                        f.write(f"EARLY STOP at step {step}, best val loss: {best_val_loss:.4f}\n")
+                    break
         
         #training 
         model.train()
@@ -221,7 +235,7 @@ def main():
         'step': max_steps,
         'val_loss': best_val_loss
     }
-    torch.save(checkpoint, os.path.join(log_dir, f"final_model.pt"))
+    torch.save(checkpoint, os.path.join(log_dir, f"final_model.pth"))
     print(f"Training complete!")
     print(f"Best validation loss: {best_val_loss:.4f}")
 
