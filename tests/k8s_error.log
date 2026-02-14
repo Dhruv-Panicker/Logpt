@@ -1,0 +1,77 @@
+filepath: /Users/dhruvpanicker/Projects/Logpt/test_logs/k8s_error.log
+
+Kubernetes cluster error log with various failure scenarios
+
+Generated: 2024-01-15 | Cluster: production-us-west-2
+
+I0115 14:23:10.123456 28364 kubelet.go:1234] kubelet started I0115
+14:23:15.234567 28364 cni.go:456] Loading CNI plugin from /opt/cni/bin
+I0115 14:23:20.345678 28364 kubelet.go:1235] Registering node node-001
+with cluster W0115 14:25:01.456789 28364 node.go:789] Pod eviction
+threshold crossed: 85% disk usage
+
+E0115 14:26:30.567890 28364 pod_manager.go:123] Failed to start pod:
+nginx-deployment-5d59d67564-abc12 Error: insufficient memory available.
+Required: 512Mi, Available: 128Mi Pod:
+default/nginx-deployment-5d59d67564-abc12 Node: node-001
+
+I0115 14:27:01.678901 28364 kubelet.go:1236] Attempting pod restart for
+nginx-deployment-5d59d67564-abc12 W0115 14:27:15.789012 28364
+manager.go:456] Container restart limit exceeded for pod
+nginx-deployment-5d59d67564-abc12
+
+E0115 14:28:45.890123 28364 docker.go:789] Docker daemon connection lost
+Error: cannot connect to Docker daemon Attempting reconnection in 5s
+Last successful connection: 14:28:40.123456
+
+I0115 14:28:50.901234 28364 docker.go:790] Docker daemon reconnected
+successfully
+
+E0115 14:29:30.012345 28364 kubelet.go:1237] Failed to pull image:
+gcr.io/my-app/service:v2.1.0 Error: image pull backoff exceeded Retried
+5 times over 2 minutes Pod:
+production/service-deployment-7f9c8d5e4-xyz99 Registry: gcr.io Reason:
+unauthorized, check imagePullSecrets
+
+W0115 14:30:00.123456 28364 manager.go:457] Deleting failed pod
+production/service-deployment-7f9c8d5e4-xyz99
+
+E0115 14:30:45.234567 28364 pleg.go:234] PLEG is not healthy Error:
+runtime response took 45.234s, exceeds timeout of 3m Container runtime:
+containerd Last successful check: 14:27:15.123456 Current time:
+14:30:45.234567
+
+I0115 14:30:50.345678 28364 pleg.go:235] Restarting PLEG monitoring
+W0115 14:31:15.456789 28364 node.go:790] Node node-001 not ready for pod
+scheduling
+
+E0115 14:32:00.567890 28364 eviction_manager.go:345] Starting node
+eviction process Reason: memory pressure Available memory: 95Mi Eviction
+threshold: 100Mi Pods to evict: 3
+
+E0115 14:32:05.678901 28364 eviction_manager.go:346] Evicting pod:
+default/nginx-deployment-5d59d67564-abc12 Grace period: 30s Force
+termination: false
+
+E0115 14:32:35.789012 28364 eviction_manager.go:347] Eviction timeout:
+pod default/nginx-deployment-5d59d67564-abc12 did not terminate
+gracefully Force terminating pod Status: SuccessPod termination
+confirmed
+
+I0115 14:32:40.890123 28364 eviction_manager.go:348] Pod
+default/nginx-deployment-5d59d67564-abc12 terminated
+
+E0115 14:33:10.901234 28364 cni.go:457] CNI plugin error: network setup
+failed for pod production/api-service-6c4d5b3a2-pqr88 Error: failed to
+assign IP address Plugin: calico Network: pod-network Reason: IP pool
+exhausted
+
+W0115 14:33:45.012345 28364 kubelet.go:1238] Unable to compute memory
+limit for pod, using system default
+
+E0115 14:34:30.123456 28364 disk.go:567] Disk pressure detected on node
+node-001 Disk usage: 92% Inodes: 89% (warning threshold: 85%) Free
+space: 2.3Gi Inodes free: 45623
+
+I0115 14:34:35.234567 28364 kubelet.go:1239] Triggering cleanup of
+unused images and containers

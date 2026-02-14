@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "logpt"
+version = "0.1.0"
+description = "Log analysis powered by fine-tuned GPT-2"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch>=2.0",
+    "transformers>=4.30",
+    "tiktoken>=0.5",
+    "rouge-score",
+    "bert-score",
+    "pandas",
+    "numpy",
+]
+
+[project.scripts]
+logpt = "cli.interface:main"
+
+[tool.setuptools]
+packages = ["logpt", "cli"]

@@ -1,0 +1,117 @@
+filepath: /Users/dhruvpanicker/Projects/Logpt/test_logs/apache_error.log
+
+Apache HTTP Server error log with various failure scenarios
+
+Generated: 2024-01-15 | Environment: production-web-1
+
+[Mon Jan 15 14:23:10.123456 2024] [mpm_event:notice] [pid 1201:tid
+140735] AH00489: Apache/2.4.57 (Unix) configured – resuming normal
+operations [Mon Jan 15 14:23:10.123789 2024] [core:notice] [pid 1201:tid
+140735] AH00094: Command line: ‘/usr/local/apache2/bin/httpd -D
+FOREGROUND’
+
+[Mon Jan 15 14:24:01.456789 2024] [mpm_event:warn] [pid 1201:tid 140800]
+AH00484: server reached MaxRequestWorkers setting, consider raising the
+MaxRequestWorkers setting
+
+[Mon Jan 15 14:24:30.567890 2024] [authz_core:error] [pid 1302:tid
+140810] [client 192.168.1.25:54321] AH01630: client denied by server
+configuration: /var/www/html/admin
+
+[Mon Jan 15 14:25:12.678901 2024] [proxy:error] [pid 1305:tid 140820]
+(111)Connection refused: AH00957: HTTP: attempt to connect to
+10.0.0.15:8080 (backend-service) failed [Mon Jan 15 14:25:12.679012
+2024] [proxy_http:error] [pid 1305:tid 140820] AH01114: HTTP: failed to
+make connection to backend: backend-service
+
+[Mon Jan 15 14:26:00.789012 2024] [ssl:error] [pid 1308:tid 140830]
+AH02032: Hostname api.example.com provided via SNI and hostname
+www.example.com provided via HTTP are different
+
+[Mon Jan 15 14:26:45.890123 2024] [rewrite:warn] [pid 1310:tid 140840]
+AH00687: RewriteCond: bad flag delimiters
+
+[Mon Jan 15 14:27:15.901234 2024] [php:error] [pid 1315:tid 140850]
+[client 192.168.1.45:55231] PHP Fatal error: Uncaught Error: Call to
+undefined function mysql_connect() in /var/www/html/index.php:23
+
+[Mon Jan 15 14:28:30.012345 2024] [mpm_event:error] [pid 1201:tid
+140735] AH00485: scoreboard is full, not at MaxRequestWorkers
+
+[Mon Jan 15 14:29:05.123456 2024] [core:error] [pid 1320:tid 140860]
+(13)Permission denied: AH00035: access to /uploads denied (filesystem
+path ‘/var/www/html/uploads’) because search permissions are missing on
+a component of the path
+
+[Mon Jan 15 14:30:15.234567 2024] [proxy_fcgi:error] [pid 1325:tid
+140870] (104)Connection reset by peer: AH01075: Error dispatching
+request to :
+
+[Mon Jan 15 14:31:00.345678 2024] [ssl:warn] [pid 1201:tid 140735]
+AH01909: RSA certificate configured for www.example.com does NOT include
+an ID which matches the server name
+
+[Mon Jan 15 14:31:45.456789 2024] [mpm_event:notice] [pid 1201:tid
+140735] AH00491: caught SIGTERM, shutting down
+
+[Mon Jan 15 14:31:50.567890 2024] [mpm_event:notice] [pid 1450:tid
+140900] AH00489: Apache/2.4.57 (Unix) configured – resuming normal
+operations
+
+[Mon Jan 15 14:32:15.678901 2024] [auth_basic:error] [pid 1455:tid
+140910] [client 192.168.1.60:60123] AH01617: user admin: authentication
+failure for “/secure”: Password Mismatch
+
+[Mon Jan 15 14:33:00.789012 2024] [proxy:error] [pid 1460:tid 140920]
+(110)Connection timed out: AH00957: HTTP: attempt to connect to
+10.0.0.20:9090 (api-backend) failed
+
+[Mon Jan 15 14:33:45.890123 2024] [core:warn] [pid 1465:tid 140930]
+AH00098: pid file /usr/local/apache2/logs/httpd.pid overwritten –
+Unclean shutdown of previous Apache run?
+
+[Mon Jan 15 14:34:30.901234 2024] [php:warn] [pid 1470:tid 140940]
+[client 192.168.1.75:61234] PHP Warning: Undefined array key “user_id”
+in /var/www/html/profile.php on line 45
+
+[Mon Jan 15 14:35:10.012345 2024] [core:error] [pid 1475:tid 140950]
+[client 192.168.1.88:62345] AH00124: Request exceeded the limit of 10
+internal redirects due to probable configuration error
+
+[Mon Jan 15 14:35:55.123456 2024] [mpm_event:error] [pid 1450:tid
+140900] AH00484: server reached MaxRequestWorkers setting, consider
+raising the MaxRequestWorkers setting
+
+[Mon Jan 15 14:36:40.234567 2024] [ssl:error] [pid 1480:tid 140960]
+AH02261: Re-negotiation handshake failed
+
+[Mon Jan 15 14:37:20.345678 2024] [proxy_http:error] [pid 1485:tid
+140970] AH01102: error reading status line from remote server
+api-backend
+
+[Mon Jan 15 14:38:05.456789 2024] [core:alert] [pid 1490:tid 140980]
+[client 192.168.1.99:63456] /var/www/html/.htaccess: Invalid command
+‘RewriteEnginee’, perhaps misspelled or defined by a module not included
+in the server configuration
+
+[Mon Jan 15 14:39:00.567890 2024] [mpm_event:notice] [pid 1450:tid
+140900] AH00493: SIGUSR1 received. Doing graceful restart
+
+[Mon Jan 15 14:39:10.678901 2024] [mpm_event:notice] [pid 1500:tid
+141000] AH00489: Apache/2.4.57 (Unix) configured – resuming normal
+operations
+
+[Mon Jan 15 14:40:00.789012 2024] [php:error] [pid 1505:tid 141010]
+[client 192.168.1.105:64567] PHP Parse error: syntax error, unexpected
+token “}” in /var/www/html/app.php on line 78
+
+[Mon Jan 15 14:41:15.890123 2024] [proxy:error] [pid 1510:tid 141020]
+(111)Connection refused: AH00957: HTTP: attempt to connect to
+10.0.0.25:7070 (payments-service) failed
+
+[Mon Jan 15 14:42:30.901234 2024] [core:error] [pid 1515:tid 141030]
+[client 192.168.1.120:65678] File does not exist:
+/var/www/html/favicon.ico
+
+[Mon Jan 15 14:43:15.012345 2024] [mpm_event:notice] [pid 1500:tid
+141000] AH00494: SIGHUP received. Attempting to restart

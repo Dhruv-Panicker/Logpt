@@ -26,7 +26,7 @@ class Tokenizer:
     def register_special_tokens(self):
         special_tokens_list = list(self.SPECIAL_TOKENS.values())
         num_added = self.tokenizer.add_special_tokens({'additional_special_tokens': special_tokens_list})
-        print(f'Added {num_added} special tokens: {special_tokens_list}')
+
     
     #encoding function return as pytorch tensors 
     def encode(self, text: str):
