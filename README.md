@@ -1,13 +1,15 @@
 # LoGPT
 
 ```
-  _                _____ _____ _____
- | |    ___   __ _|  _  |_   _|_   _|
- | |   / _ \ / _` | |_| | | |   | |
- | |__| (_) | (_| |  ___/ | |   | |
- |_____\___/ \__, |_|     |_|   |_|
-              __/ |
-             |___/     Local Log Analysis Engine
+ __                  ______  _______  ________
+|  \                /      \|       \|        \
+| $$       ______  |  $$$$$$| $$$$$$$\$$$$$$$$
+| $$      /      \ | $$ __\$| $$__/ $$ | $$
+| $$     |  $$$$$$\| $$|    | $$    $$ | $$
+| $$     | $$  | $$| $$ \$$$| $$$$$$$  | $$
+| $$_____| $$__/ $$| $$__| $| $$       | $$
+| $$     \\$$    $$ \$$    $| $$       | $$
+ \$$$$$$$$ \$$$$$$   \$$$$$$ \$$        \$$
 ```
 
 **LoGPT is a fine-tuned GPT-2 (124M) model for automated log file analysis that runs entirely on local hardware.** It takes raw system logs as input and produces structured summaries, root cause analyses, and action item recommendations -- achieving 89.8% semantic similarity to GPT-4o while using 14,193x fewer parameters and requiring zero API calls.
@@ -207,14 +209,6 @@ The 14 log types cover a broad range of systems:
 | Mobile / Health | HealthApp |
 | Standalone Software | Proxifier |
 
-### Data Split
-
-| Split | Samples | Percentage |
-|-------|---------|------------|
-| Training | 4,297 | 85% |
-| Validation | 505 | 10% |
-| Test | 253 | 5% |
-
 ## Evaluation
 
 The model was evaluated on the held-out test set using multiple metrics:
@@ -254,11 +248,6 @@ The gap between ROUGE (lexical) and BERTScore (semantic) scores is characteristi
 │   ├── gpt.py                      # GPT-2 model implementation (from scratch)
 │   ├── test.py                     # Test evaluation (ROUGE, BERTScore, perplexity)
 │   └── tokenizer.py                # GPT-2 tokenizer with special token registration
-├── logs
-│   ├── best_model.pth              # Best model checkpoint (by val loss)
-│   ├── final_model.pth             # Final model checkpoint (step 2,000)
-│   ├── test_results.json           # Full test evaluation results
-│   ├── training_log_2000.txt       # Training log (CSV: step, train_loss, val_loss, lr)
 │   └── *.png                       # Generated analysis plots
 ├── scripts
 │   ├── batch.py                    # OpenAI Batch API client for data generation
@@ -292,23 +281,9 @@ Key findings from the analysis:
 
 This project uses log datasets from the Loghub collection. If you use LoGPT or its training data in your research, please cite:
 
-```bibtex
-@inproceedings{zhu2023loghub,
-  title={Loghub: A Large Collection of System Log Datasets for AI-driven Log Analytics},
-  author={Zhu, Jieming and He, Shilin and He, Pinjia and Liu, Jinyang and Lyu, Michael R.},
-  booktitle={IEEE International Symposium on Software Reliability Engineering (ISSRE)},
-  year={2023}
-}
-```
+**Zhu et al. (2023)**: Loghub: A Large Collection of System Log Datasets for AI-driven Log Analytics. *IEEE International Symposium on Software Reliability Engineering (ISSRE)*, 2023.
 
-```bibtex
-@inproceedings{jiang2024loghub2,
-  title={A Large-scale Evaluation for Log Parsing Techniques: How Far are We?},
-  author={Jiang, Zhihan and Liu, Jinyang and Huang, Junjie and Li, Yichen and Huo, Yintong and Gu, Jiazhen and Chen, Zhuangbin and Zhu, Jieming and Lyu, Michael R.},
-  booktitle={ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA)},
-  year={2024}
-}
-```
+**Jiang et al. (2024)**: A Large-scale Evaluation for Log Parsing Techniques: How Far are We? *ACM SIGSOFT International Symposium on Software Testing and Analysis (ISSTA)*, 2024.
 
 The Loghub datasets are freely available for research at [https://github.com/logpai/loghub](https://github.com/logpai/loghub).
 
