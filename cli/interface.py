@@ -5,7 +5,7 @@ import time
 from pathlib import Path
 
 from cli.processor import LogProcessor
-from cli.generate_samples import LogAnalyzer, QUERY_PROMPTS
+from logpt.inference import LogAnalyzer, QUERY_PROMPTS
 
 BANNER = """
 ══════════════════════════════════════════

@@ -37,6 +37,7 @@ checkpoints/*
 # Logs
 logs/*
 !logs/.gitkeep
+!logs/*.png
 
 # Notebooks
 .ipynb_checkpoints/

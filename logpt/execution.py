@@ -1,7 +1,7 @@
 
 """
 LoGPT Training Loop 
-Fine-tuning GPT-3 on log analysis using MPS/CUDA/CPU
+Fine-tuning GPT-2 on log analysis using MPS/CUDA/CPU
 """
 
 import os

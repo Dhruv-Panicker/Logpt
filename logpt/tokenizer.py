@@ -18,8 +18,11 @@ class Tokenizer:
     }
 
     def __init__(self): 
-        # Load from local cache (no network timeout issues)
-        self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2', local_files_only=True)
+        # Load from local cache if available, otherwise download from Hugging Face
+        try: 
+            self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2', local_files_only=True)
+        except OSError: 
+            self.tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
         self.register_special_tokens()
 
     # Register special tokens with the tokenizer
