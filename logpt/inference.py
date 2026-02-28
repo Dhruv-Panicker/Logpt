@@ -1,4 +1,5 @@
 import os
+import re
 import torch
 from huggingface_hub import hf_hub_download
 
@@ -89,6 +90,18 @@ class LogAnalyzer:
             tokens = tokens[-max_prompt_len:]
         return tokens
 
+    # Strip preamble text the model sometimes generates before the actual structured response for unfamiliar logtypes 
+    @staticmethod
+    def _clean_response(text: str) -> str:
+        # Find the first markdown header (###) or numbered list item (1.)
+        match = re.search(r'(^|\n)(#{1,4}\s|1[\.\)])', text)
+        if match and match.start() > 0:
+            # Only strip if the preamble is short (< 120 chars) to avoid removing real content
+            preamble = text[:match.start()]
+            if len(preamble) < 120:
+                return text[match.start():].lstrip('\n')
+        return text
+
     # Streaming autoregressive generation — yields partial decoded text after each new token.
     def generate_stream(self, log_content: str, query_type: str, max_new_tokens: int = 256, temperature: float = 0.7, top_k: int = 50):
         tokens = self._prepare_tokens(log_content, query_type, max_new_tokens)
@@ -117,7 +130,7 @@ class LogAnalyzer:
 
                 generated.append(token_id)
                 x = torch.cat((x, next_token), dim=1)
-                yield self.tokenizer.decode(generated).strip()
+                yield self._clean_response(self.tokenizer.decode(generated).strip())
 
     # Non-streaming generation — consumes the stream and returns the final result.
     def generate(self, log_content: str, query_type: str, max_new_tokens: int = 256, temperature: float = 0.7, top_k: int = 50):
