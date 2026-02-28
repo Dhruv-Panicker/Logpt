@@ -7,7 +7,7 @@ from logpt.tokenizer import Tokenizer
 from cli.processor import LogProcessor
 
 
-HF_REPO_ID = "dhruvpanicker/logpt-gpt2-log-analyzer"
+HF_REPO_ID = "Dhruv-Panicker/logpt-gpt2-log-analyzer"
 HF_MODEL_FILENAME = "best_model.pth"
 
 QUERY_PROMPTS = {
@@ -69,12 +69,10 @@ class LogAnalyzer:
         elif torch.cuda.is_available():
             return "cuda"
         return "cpu"
-    # Autoregressive generation method for a single chunk of log content
-    @torch.no_grad()
-    def generate(self, log_content: str, query_type: str, max_new_tokens: int = 256, temperature: float = 0.7, top_k: int = 50):
-        
-        query = QUERY_PROMPTS[query_type]
 
+    # Build the formatted prompt and encode it to token IDs, truncating from the left if needed.
+    def _prepare_tokens(self, log_content: str, query_type: str, max_new_tokens: int):
+        query = QUERY_PROMPTS[query_type]
         prompt = PROMPT_TEMPLATE.format(
             log_start=self.special_tokens['log_start'],
             log_content=log_content,
@@ -84,40 +82,49 @@ class LogAnalyzer:
             query_end=self.special_tokens['query_end'],
             response_start=self.special_tokens['response_start']
         )
-        # Encode the prompt and generate tokens autoregressively
+        # Tokenize and truncate if total length exceeds model context window (max_seq_len - max_new_tokens)
         tokens = self.tokenizer.encode(prompt)
-
         max_prompt_len = self.max_seq_len - max_new_tokens
-        # If the prompt exceeds the maximum length, truncate from the left 
         if len(tokens) > max_prompt_len:
             tokens = tokens[-max_prompt_len:]
+        return tokens
 
+    # Streaming autoregressive generation — yields partial decoded text after each new token.
+    def generate_stream(self, log_content: str, query_type: str, max_new_tokens: int = 256, temperature: float = 0.7, top_k: int = 50):
+        tokens = self._prepare_tokens(log_content, query_type, max_new_tokens)
         # convert to tensor and move to device
         x = torch.tensor([tokens], dtype=torch.long, device=self.device)
         eos_token_id = self.tokenizer.get_tokenizer().eos_token_id
         generated = []
-        # generate tokens one by one, stopping if we hit the response end token or EOS token
-        for _ in range(max_new_tokens):
-            x_cond = x if x.size(1) <= self.max_seq_len else x[:, -self.max_seq_len:]
-            logits, _ = self.model(x_cond)
-            logits = logits[:, -1, :] / temperature
 
-            # Apply top-k filtering to the logits if specified
-            if top_k > 0:
-                v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
-                logits[logits < v[:, [-1]]] = float("-inf")
+        with torch.no_grad():
+            for _ in range(max_new_tokens):
+                # If input exceeds max_seq_len, condition on the most recent tokens (right truncation)
+                x_cond = x if x.size(1) <= self.max_seq_len else x[:, -self.max_seq_len:]
+                logits, _ = self.model(x_cond)
+                logits = logits[:, -1, :] / temperature
+                #get top-k logits and filter
+                if top_k > 0:
+                    v, _ = torch.topk(logits, min(top_k, logits.size(-1)))
+                    logits[logits < v[:, [-1]]] = float("-inf")
+                # sample from the filtered distribution
+                probs = torch.softmax(logits, dim=-1)
+                next_token = torch.multinomial(probs, num_samples=1)
+                token_id = next_token.item()
 
-            probs = torch.softmax(logits, dim=-1)
-            next_token = torch.multinomial(probs, num_samples=1)
-            token_id = next_token.item()
+                if token_id in (self.response_end_id, eos_token_id):
+                    break
 
-            if token_id in (self.response_end_id, eos_token_id):
-                break
+                generated.append(token_id)
+                x = torch.cat((x, next_token), dim=1)
+                yield self.tokenizer.decode(generated).strip()
 
-            generated.append(token_id)
-            x = torch.cat((x, next_token), dim=1)
-
-        return self.tokenizer.decode(generated).strip()
+    # Non-streaming generation — consumes the stream and returns the final result.
+    def generate(self, log_content: str, query_type: str, max_new_tokens: int = 256, temperature: float = 0.7, top_k: int = 50):
+        result = ""
+        for result in self.generate_stream(log_content, query_type, max_new_tokens, temperature, top_k):
+            pass
+        return result
 
     # Analyze a single chunk of the log file and return the result with chunk metadata.
     def analyze(self, log_text: str, task: str, chunk_index: int = 0) -> dict:
