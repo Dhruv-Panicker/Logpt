@@ -18,7 +18,9 @@ The model was trained on 5,055 log-analysis pairs across 14 log types (HDFS, Ope
 
 ### **[Try the Live Demo →](https://huggingface.co/spaces/Dhruv-Panicker/logpt-demo)**
 
-![LoGPT Web Demo](logs/LoGPT%20-%20AI%20Log%20Analyzer.png)
+
+https://github.com/user-attachments/assets/0f6cfcb6-29e5-4bec-850c-378e11e59fb1
+
 
 ![Training & Validation Loss](logs/panel_1_train_val_loss.png)
 ![LoGPT vs GPT-4o Semantic Similarity](logs/logpt_vs_gpt4o_comparison.png)
